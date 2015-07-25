@@ -54,6 +54,9 @@ var showUser = function(user) {
     var userElem = result.find('.display-name');
     userElem.text(user.user.display_name);
 
+    var userImage = result.find('.profile-image');
+    userImage.html("<img src=" + user.user.profile_image + "\" alt=\"Profile Image\">");
+
     var reputation = result.find('.reputation');
     reputation.text(user.user.reputation);
 
