@@ -6,15 +6,22 @@ $(document).ready( function() {
 		var tags = $(this).find("input[name='tags']").val();
 		getUnanswered(tags);
 	});
+    $('.inspiration-getter').submit( function(event){
+        // zero out results if previous search has run
+        $('.results').html('');
+        // get the value of the tags the user submitted
+        var tags = $(this).find("input[name='tags']").val();
+        getInspiration(tags);
+    });
 });
 
-// this function takes the question object returned by StackOverflow 
+// this function takes the question object returned by StackOverflow
 // and creates new result to be appended to DOM
 var showQuestion = function(question) {
-	
+
 	// clone our result template code
 	var result = $('.templates .question').clone();
-	
+
 	// Set the question properties in result
 	var questionElem = result.find('.question-text a');
 	questionElem.attr('href', question.link);
@@ -59,13 +66,13 @@ var showError = function(error){
 // takes a string of semi-colon separated tags to be searched
 // for on StackOverflow
 var getUnanswered = function(tags) {
-	
+
 	// the parameters we need to pass in our request to StackOverflow's API
 	var request = {tagged: tags,
 								site: 'stackoverflow',
 								order: 'desc',
 								sort: 'creation'};
-	
+
 	var result = $.ajax({
 		url: "http://api.stackexchange.com/2.2/questions/unanswered",
 		data: request,
@@ -88,5 +95,31 @@ var getUnanswered = function(tags) {
 	});
 };
 
+var getInspiration = function(tags) {
+  var request = {   tagged: tags,
+                    site: 'stackoverflow'};
+
+    var results = $.ajax({
+        url: "http://api.stackexchange.com/2.2/tags/top-answerers/month",
+        data: request,
+        dataType: "jsonp",
+        type: "GET",
+        })
+        .done(function(result){
+            var searchResults = showSearchResults(request);
+
+            $('.search-results').html(searchResults);
+
+            $.each(result.items, function(i, item) {
+                var user = showUser(item);
+                $('.results').append(user);
+            });
+        })
+        .fail(function(jqXHR, error, errorThrown){
+            var errorElem = showError(error);
+            $('.search-results').append(errorElem);
+        });
+
+};
 
 
