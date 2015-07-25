@@ -10,7 +10,7 @@ $(document).ready( function() {
         // zero out results if previous search has run
         $('.results').html('');
         // get the value of the tags the user submitted
-        var tags = $(this).find("input[name='tags']").val();
+        var tags = $(this).find("input[name='answerers']").val();
         getInspiration(tags);
     });
 });
@@ -46,6 +46,25 @@ var showQuestion = function(question) {
 	);
 
 	return result;
+};
+
+var showUser = function(user) {
+    var result = $('.templates .inspiration').clone();
+
+    var userElem = result.find('.display-name');
+    userElem.text(user.user.display_name);
+
+    var reputation = result.find('.reputation');
+    reputation.text(user.user.reputation);
+
+    var acceptRate = result.find('.accept-rate');
+    acceptRate.text(user.user.accept_rate);
+
+    var profile = result.find('.profile a');
+    profile.attr('href', user.user.link);
+    profile.text(user.user.link);
+
+    return result;
 };
 
 
@@ -96,17 +115,18 @@ var getUnanswered = function(tags) {
 };
 
 var getInspiration = function(tags) {
-  var request = {   tagged: tags,
+  var request = {   tag: tags,
+                    //period: 'month',
                     site: 'stackoverflow'};
 
-    var results = $.ajax({
-        url: "http://api.stackexchange.com/2.2/tags/top-answerers/month",
+    var result = $.ajax({
+        url: "http://api.stackexchange.com/2.2/tags/" + tags + "/top-answerers/all_time",
         data: request,
         dataType: "jsonp",
         type: "GET",
         })
         .done(function(result){
-            var searchResults = showSearchResults(request);
+            var searchResults = showSearchResults(request.tag, result.items.length);
 
             $('.search-results').html(searchResults);
 
